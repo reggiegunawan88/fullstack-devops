@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Backend Service - Development mode with hot reload
+  backend-dev:
+    build:
+      context: .  # Use root as context to access pnpm-lock.yaml
+      dockerfile: ./apps/backend/Dockerfile.dev
+    container_name: fullstack-backend-dev
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - API_ENDPOINT=http://localhost:3001
+      - DEPLOYED_ON=docker-dev
+    volumes:
+      # Mount source code for hot reloading
+      - ./apps/backend/src:/workspace/apps/backend/src
+      - ./apps/backend/package.json:/workspace/apps/backend/package.json
+      - ./apps/backend/tsconfig.json:/workspace/apps/backend/tsconfig.json
+    networks:
+      - app-network
+    working_dir: /workspace
+    command: pnpm --filter backend dev  # Run in watch mode
+
+  # Frontend Service - Development mode with hot reload
+  frontend-dev:
+    build:
+      context: .  # Use root as context to access pnpm-lock.yaml
+      dockerfile: ./apps/frontend/Dockerfile.dev
+    container_name: fullstack-frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://backend-dev:3001
+    volumes:
+      # Mount source code for hot reloading
+      - ./apps/frontend/src:/workspace/apps/frontend/src
+      - ./apps/frontend/public:/workspace/apps/frontend/public
+      - ./apps/frontend/index.html:/workspace/apps/frontend/index.html
+      - ./apps/frontend/package.json:/workspace/apps/frontend/package.json
+      - ./apps/frontend/vite.config.ts:/workspace/apps/frontend/vite.config.ts
+      - ./apps/frontend/tsconfig.json:/workspace/apps/frontend/tsconfig.json
+    depends_on:
+      - backend-dev
+    networks:
+      - app-network
+    working_dir: /workspace
+    command: pnpm --filter frontend dev  # Run Vite dev server
+
+networks:
+  app-network:
+    driver: bridge

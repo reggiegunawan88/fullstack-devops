@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Backend Service - HonoJS API
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: fullstack-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - API_ENDPOINT=http://localhost:3001
+      - DEPLOYED_ON=docker
+    networks:
+      - app-network
+    # Health check to ensure backend is ready
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend Service - React with nginx
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: fullstack-frontend
+    ports:
+      - "3000:80"  # Map port 3000 on host to port 80 in container
+    depends_on:
+      - backend  # Ensure backend starts first
+    networks:
+      - app-network
+    # Health check for nginx
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Network for container communication
+networks:
+  app-network:
+    driver: bridge
+
+# Optional: Add volumes for persistent data
+volumes:
+  app-data:
