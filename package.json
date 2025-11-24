@@ -1,0 +1,21 @@
+{
+  "name": "fullstack-devops",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo start",
+    "lint": "turbo lint",
+    "format": "biome format --write . && biome check --write --unsafe .",
+    "format:check": "biome format . && biome check .",
+    "sort-imports": "biome check --write --unsafe ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.7",
+    "turbo": "^2.0.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
