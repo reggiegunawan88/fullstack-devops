@@ -1,0 +1,35 @@
+# Development Dockerfile - For hot reloading
+FROM node:18-alpine
+
+# Set working directory to root for monorepo
+WORKDIR /workspace
+
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Copy root package files and workspace config
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy both app package.json files (needed for workspace dependencies)
+COPY ./apps/backend/package.json ./apps/backend/
+COPY ./apps/frontend/package.json ./apps/frontend/
+
+# Install ALL dependencies for the workspace
+# Note: We can't use --frozen-lockfile in dev because of path differences
+# Install all workspace dependencies to ensure everything works
+RUN pnpm install
+
+# Set working directory to frontend app
+WORKDIR /workspace/apps/frontend
+
+# Copy frontend source code
+COPY ./apps/frontend/ ./
+
+# Vite dev server needs to bind to 0.0.0.0 for Docker
+ENV VITE_HOST=0.0.0.0
+
+# Expose Vite dev server port
+EXPOSE 3000
+
+# Run dev server
+CMD ["pnpm", "dev"]
