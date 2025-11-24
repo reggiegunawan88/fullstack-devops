@@ -1,0 +1,32 @@
+# Development Dockerfile - Simpler, includes dev tools
+FROM node:18-alpine
+
+# Set working directory to root for monorepo
+WORKDIR /workspace
+
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Copy root package files and workspace config
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy both app package.json files (needed for workspace dependencies)
+COPY ./apps/backend/package.json ./apps/backend/
+COPY ./apps/frontend/package.json ./apps/frontend/
+
+# Install ALL dependencies for the workspace
+# Note: We can't use --frozen-lockfile in dev because of path differences
+# Install all workspace dependencies to ensure everything works
+RUN pnpm install
+
+# Set working directory to backend app
+WORKDIR /workspace/apps/backend
+
+# Copy backend source code
+COPY ./apps/backend/ ./
+
+# Expose port
+EXPOSE 3001
+
+# Default command (can be overridden in docker-compose)
+CMD ["pnpm", "dev"]
