@@ -1,0 +1,25 @@
+{
+  "env": {
+    "MAX_THINKING_TOKENS": "32000"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(git commit:*)",
+      "WebSearch",
+      "WebFetch",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm format:*)",
+      "Bash(biome migrate:*)",
+      "Bash(pnpm dev)",
+      "Bash(docker run:*)",
+      "Bash(docker-compose:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": false
+}
