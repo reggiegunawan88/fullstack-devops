@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fullstack-frontend
+  labels:
+    deployment: fullstack-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fullstack-frontend
+  template:
+    metadata:
+      labels:
+        app: fullstack-frontend
+    spec:
+      containers:
+        - name: fullstack-frontend
+          image: fullstack-frontend:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: VITE_API_BASE_URL
+              value: "http://localhost:3001"
