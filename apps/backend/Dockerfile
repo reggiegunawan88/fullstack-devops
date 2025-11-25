@@ -7,14 +7,13 @@ WORKDIR /app
 
 # Copy package files first (this is for better caching)
 # If these files don't change, Docker can reuse this layer
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install pnpm globally in the container
 RUN npm install -g pnpm@9
 
 # Install dependencies
-# --frozen-lockfile ensures exact versions from lock file
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Stage 2: Builder
 # This stage builds our TypeScript code

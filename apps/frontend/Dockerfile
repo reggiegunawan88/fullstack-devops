@@ -4,13 +4,13 @@ FROM node:18-alpine AS dependencies
 WORKDIR /app
 
 # Copy package files for dependency installation
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install pnpm
 RUN npm install -g pnpm@9
 
 # Install all dependencies (including dev dependencies for building)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
