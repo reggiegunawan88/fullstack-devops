@@ -88,7 +88,7 @@ jobs:
           context: ${{ matrix.app.context }}
           file: ${{ matrix.app.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.login-ecr.outputs.registry }}/fullstack-devops/${{ matrix.app.ecr_repo_name }}:${{ steps.ecr-image-tag.outputs.tag }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.ecr_repo_name }}:${{ steps.ecr-image-tag.outputs.tag }}
 
       - name: Output image tag ✅
         run: echo "Pushed image with tag ${{ steps.ecr-image-tag.outputs.tag }}"
