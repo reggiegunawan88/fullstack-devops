@@ -3,13 +3,13 @@ name: Build and Push to ECR
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "apps/**"
       - ".github/workflows/**"
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - "apps/**"
   workflow_dispatch:
@@ -77,7 +77,7 @@ jobs:
           fi
 
           tag="${prefix}${next}"
-          echo "tag=${tag} >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
       - name: Build & Push to ECR
         uses: docker/build-push-action@v5
