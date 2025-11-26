@@ -1,0 +1,91 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/**"
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-east-1
+
+    strategy:
+      matrix:
+        app:
+          - name: backend
+            context: ./apps/backend
+            dockerfile: ./apps/backend/Dockerfile
+          - name: frontend
+            context: ./apps/frontend
+            dockerfile: ./apps/frontend/Dockerfile
+          - name: frontend-v2
+            context: ./apps/frontend-v2
+            dockerfile: ./apps/frontend-v2/Dockerfile
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Add ECR login step
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Determine next Docker image tag 🐳
+        id: ecr-image-tag
+        env:
+          ECR_REPOSITORY: fullstack-devops/${{ matrix.app.name }}
+        run: |
+          set -e
+
+          branch="${GITHUB_REF_NAME//\//-}"
+          prefix="${branch}-"
+
+          tags=$(aws ecr describe-images \
+            --repository-name "${ECR_REPOSITORY}" \
+            --query "imageDetails[].imageTags[]" \
+            --output text | tr '\t' '\n' | grep "^${prefix}" || true)
+
+          if [[ -z "$tags" ]]; then
+            next=1
+          else
+            max=$(echo "$tags" | sed "s/^${prefix}//" | sort -n | tail -1)
+            next=$((max + 1))
+          fi
+
+          tag="${prefix}${next}"
+          echo "tag=${tag} >> "$GITHUB_OUTPUT"
+
+      - name: Build & Push to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.app.context }}
+          file: ${{ matrix.app.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/fullstack-devops/${{ matrix.app.name }}:${{ steps.ecr-image-tag.outputs.tag }}
+
+      - name: Output image tag ✅
+        run: echo "Pushed image with tag ${{ steps.ecr-image-tag.outputs.tag }}"
