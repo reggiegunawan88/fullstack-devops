@@ -41,6 +41,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug AWS Role
+        run: |
+          echo "Role length: ${#ROLE}"
+          echo "Role starts with: ${ROLE:0:20}..."
+          echo "Role ends with: ...${ROLE: -15}"
+
+          # Check if it looks like an ARN
+          if [[ "$ROLE" == arn:aws:iam::* ]]; then
+            echo "✅ Looks like a valid ARN format"
+          else
+            echo "❌ Does NOT look like an ARN - check your secret!"
+          fi
+        env:
+          ROLE: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
       - name: Configure AWS Credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
