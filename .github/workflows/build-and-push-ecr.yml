@@ -31,30 +31,18 @@ jobs:
           - name: backend
             context: ./apps/backend
             dockerfile: ./apps/backend/Dockerfile
+            ecr_repo_name: fullstack-devops/backend
           - name: frontend
             context: ./apps/frontend
             dockerfile: ./apps/frontend/Dockerfile
+            ecr_repo_name: fullstack-devops/frontend-v1
           - name: frontend-v2
             context: ./apps/frontend-v2
             dockerfile: ./apps/frontend-v2/Dockerfile
+            ecr_repo_name: fullstack-devops/frontend-v2
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Debug AWS Role
-        run: |
-          echo "Role length: ${#ROLE}"
-          echo "Role starts with: ${ROLE:0:20}..."
-          echo "Role ends with: ...${ROLE: -15}"
-
-          # Check if it looks like an ARN
-          if [[ "$ROLE" == arn:aws:iam::* ]]; then
-            echo "✅ Looks like a valid ARN format"
-          else
-            echo "❌ Does NOT look like an ARN - check your secret!"
-          fi
-        env:
-          ROLE: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Configure AWS Credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -72,7 +60,7 @@ jobs:
       - name: Determine next Docker image tag 🐳
         id: ecr-image-tag
         env:
-          ECR_REPOSITORY: fullstack-devops/${{ matrix.app.name }}
+          ECR_REPOSITORY: fullstack-devops/${{ matrix.app.ecr_repo_name }}
         run: |
           set -e
 
@@ -100,7 +88,7 @@ jobs:
           context: ${{ matrix.app.context }}
           file: ${{ matrix.app.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.login-ecr.outputs.registry }}/fullstack-devops/${{ matrix.app.name }}:${{ steps.ecr-image-tag.outputs.tag }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/fullstack-devops/${{ matrix.app.ecr_repo_name }}:${{ steps.ecr-image-tag.outputs.tag }}
 
       - name: Output image tag ✅
         run: echo "Pushed image with tag ${{ steps.ecr-image-tag.outputs.tag }}"
