@@ -3,12 +3,12 @@ kind: Deployment
 metadata:
   name: fullstack-backend
   labels:
-    app: fullstack-backend
+    deployment: fullstack-backend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: fullstack-backend
+      deployment: fullstack-backend
   template:
     metadata:
       labels:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: fullstack-backend
-          image: fullstack-backend:v1
+          image: fullstack-backend:v1.0
           imagePullPolicy: Never
           ports:
             - containerPort: 3001

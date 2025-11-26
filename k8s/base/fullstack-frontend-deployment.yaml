@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: fullstack-frontend
-          image: fullstack-frontend:v1
+          image: fullstack-frontend:v1.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80

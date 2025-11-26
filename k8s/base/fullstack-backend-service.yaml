@@ -6,7 +6,7 @@ metadata:
     app: fullstack-backend-service
 spec:
   selector:
-    app: fullstack-backend
+    deployment: fullstack-backend
   ports:
     - protocol: TCP
       port: 3001
