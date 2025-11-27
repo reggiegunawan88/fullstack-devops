@@ -1,0 +1,60 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: fullstack-devops
+resources:
+  - ../../base
+
+# ECR images (pushed to AWS ECR repositories)
+images:
+  - name: fullstack-backend:v1.0
+    newName: 355446107250.dkr.ecr.us-east-1.amazonaws.com/fullstack-devops/backend
+    newTag: master-3
+  - name: fullstack-frontend:v1.0
+    newName: 355446107250.dkr.ecr.us-east-1.amazonaws.com/fullstack-devops/frontend-v1
+    newTag: master-3
+  - name: fullstack-frontend-v2:v1.0
+    newName: 355446107250.dkr.ecr.us-east-1.amazonaws.com/fullstack-devops/frontend-v2
+    newTag: master-3
+
+# Patches to add imagePullSecrets and change imagePullPolicy
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: fullstack-backend
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ecr-credentials
+            containers:
+              - name: fullstack-backend
+                imagePullPolicy: IfNotPresent
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: fullstack-frontend
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ecr-credentials
+            containers:
+              - name: fullstack-frontend
+                imagePullPolicy: IfNotPresent
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: fullstack-frontend-v2
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ecr-credentials
+            containers:
+              - name: fullstack-frontend-v2
+                imagePullPolicy: IfNotPresent
