@@ -60,7 +60,7 @@ jobs:
       - name: Determine next Docker image tag 🐳
         id: ecr-image-tag
         env:
-          ECR_REPOSITORY: fullstack-devops/${{ matrix.app.ecr_repo_name }}
+          ECR_REPOSITORY: ${{ matrix.app.ecr_repo_name }}
         run: |
           set -e
 
