@@ -85,7 +85,7 @@ function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1>Fullstack DevOps</h1>
+        <h1>Fullstack DevOps Version 2</h1>
         <p className="subtitle">Turborepo + Vite + React 19 + HonoJS (version 2.0)</p>
       </header>
 
